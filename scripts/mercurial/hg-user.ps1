@@ -1,89 +1,121 @@
 <#
 	.SYNOPSIS
 	Adds a mercurial username to a repository.
+	Since Mercurial config only allows multiple credentials and not usernames, this
+	script makes it easy to add the username to the hgrc file after a clone.
 	
-	.PARAMETER Summary
-	What you want the popup notification to say!
+	.PARAMETER RepositoryPath
+	The path of the repository to set the username for.
+	.PARAMETER Username
+	Username to set for the repository
 #>
 
 PARAM(
-	[Parameter(Mandatory = $true,
-		HelpMessage = "What do you want to be nagged about?",
+	[Parameter(HelpMessage = "Path of repo",
 		ValueFromPipeline = $true)]
 	[string]
-	$Summary,
-	[Parameter()]
+	$RepositoryPath = ".",
+	[Parameter(HelpMessage = "Username to set")]
 	[string]
-	$Start = "08:00",
-	[Parameter()]
-	[string]
-	$End = "18:00",
-	[Parameter()]
-	[int]
-	$Step = 60,
-	[Parameter()]
-	[string]
-	$Location = "",
-	[Parameter()]
-	[string]
-	$Description = "",
-	[Parameter()]
-	[string]
-	$Source = "Nagging.ics",
-	[Parameter()]
-	[string]
-	$Destination = "Nagging.ics"
+	$Username = [string]::Empty
 )
 
-$template = "BEGIN:VEVENT
-DTSTAMP:{TIMESTAMP}
-TRANSP:OPAQUE
-UID:{UID}
-SUMMARY:{SUMMARY}
-LOCATION:{LOCATION}
-DESCRIPTION:{DESCRIPTION}
-CLASS:PRIVATE
-LAST-MODIFIED:{TIMESTAMP}
-RRULE:FREQ=DAILY
-DTSTART:{DTSTART}
-BEGIN:VALARM
-ACTION:AUDIO
-TRIGGER;VALUE=DURATION:-PT1M
-END:VALARM
-END:VEVENT"
-
-Function FormatLongLine($line)
+Function ImportIni (
+    [string]
+	$Path
+)
 {
-	$firstLineLength = 63;
-	$index = $firstLineLength;
-	while ($index -lt $line.Length)
+    $ini = @{};
+    if (Test-Path -Path $Path)
+    {
+        switch -regex -file $Path
+        {
+            "^\[(.+)\]$"
+            {
+                $Category = $matches[1];
+                $ini.$Category = @{};
+            }
+            "(.+)=(.+)"
+            {
+                $Key = $matches[1].TrimEnd();
+				$Value = $matches[2].TrimStart();
+                $ini.$Category.$Key = $Value;
+            }
+        }
+    }
+    else
+    {
+        Write-Host "File not found - $Path";
+    }
+    return $ini;
+}
+
+Function ExportIni (
+    [hashtable]
+	$inputObject,
+    [string]
+	$Path
+)
+{
+    $Content = @();
+    ForEach ($Category in $inputObject.Keys)
+    {
+        $Content += "[$Category]";
+        ForEach ($Key in $inputObject.$Category.Keys)
+        {
+            $Content += "$Key = $($inputObject.$Category.$Key)";
+        }
+		$content[$content.Length - 1] += [Environment]::NewLine;
+    }
+    $Content | Set-Content $Path -Force;
+}
+
+Function GetUsernameFromConfig([string]$repoPath, [string]$directory)
+{
+	$configfile = Join-Path $directory "_hg-user.cfg";
+	
+	Switch -Regex -File $configfile
 	{
-		$line = $line.Insert($index, "`n ");
-		$index += 72;
+		"(.+)=(.+)"
+		{
+			$key = $matches[1].TrimEnd();
+			$value = $matches[2].TrimStart();
+			if ($repoPath -match $key)
+			{
+				return $value;
+			}
+		}
 	}
-	return $line.Replace(",", "\,");
+	Write-Error "No username provided and no configuration found for repository $repoPath";
 }
 
-$startStamp = [TimeSpan]::Parse($Start);
-$endStamp = [TimeSpan]::Parse($End);
-
-$result = "";
-
-while ($startStamp -le $endStamp)
+if (!(Test-Path -Path $RepositoryPath))
 {
-	$diff = [DateTime]::UtcNow - [DateTime]::Now;
-	$dtstart = ([DateTime]::UtcNow.Date + ($startStamp + $diff)).ToString("yyyyMMddTHHmmssZ");
-	$longSummary = FormatLongLine($Summary);
-	$longLocation = FormatLongLine($Location);
-	$longDescription = FormatLongLine($Description);
-	$result += $template.Replace("{TIMESTAMP}", [DateTime]::UtcNow.ToString("yyyyMMddThhmmssZ")).Replace("{UID}", [Guid]::NewGuid().ToString()).Replace("{SUMMARY}", $longSummary).Replace("{LOCATION}", $longLocation).Replace("{DESCRIPTION}", $longDescription).Replace("{DTSTART}", $dtstart) + [Environment]::NewLine;
-		
-	$startStamp = $startStamp + [TimeSpan]::FromMinutes($Step);
+	Write-Error "Specified folder does not exist!";
+	exit 1;
+}
+if (!(Test-Path -Path (Join-Path $RepositoryPath ".hg")))
+{
+	Write-Error "Specified folder is not a Mercurial Repository!";
+	exit 1;
+}
+if (!(Test-Path -Path (Join-Path $RepositoryPath ".hg\hgrc")))
+{
+	Write-Error "Specified folder does not contain an hgrc file!";
+	exit 1;
 }
 
-$location = (Get-Location).Path;
-$content = [System.IO.File]::ReadAllText([System.IO.Path]::Combine($location, $Source));
-$indexOf = $content.LastIndexOf("END:VCALENDAR");
-$content = $content.Insert($indexOf, $result);
+$hgrc = ImportIni (Join-Path $RepositoryPath ".hg\hgrc");
+$currentDir = Split-Path $MyInvocation.MyCommand.Path;
 
-[System.IO.File]::WriteAllText([System.IO.Path]::Combine($location, $Destination), $content);
+if ([string]::IsNullOrEmpty($Username))
+{
+	$Username = GetUsernameFromConfig $hgrc.paths.default $currentDir;
+}
+
+if ($hgrc.ui -eq $null)
+{
+	$hgrc.ui = @{}
+}
+$hgrc.ui.username = $Username;
+ExportIni $hgrc (Join-Path $RepositoryPath ".hg\hgrc");

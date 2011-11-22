@@ -21,11 +21,3 @@ else
 }
 DetectHiddenWindows, off
 return
-
-; hide Console on "esc".
-esc::
-{
-   	WinHide ahk_class Console_2_Main
-   	WinActivate ahk_class Shell_TrayWnd
-}
-return

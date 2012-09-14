@@ -3,6 +3,10 @@
     Which Path to use
     .PARAMETER Log
     Shows the history panel
+    .PARAMETER Diff
+    Shows the "status" panel
+    .PARAMETER Properties
+    Shows the properties panel
 #>
 
 PARAM(

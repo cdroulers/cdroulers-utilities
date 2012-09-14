@@ -3,6 +3,8 @@
 	Starts a chat window with the specified username @$Domain parameter
 	.PARAMETER Domain
 	The domain of the user to start whatever with. Default is "sherweb.com"
+	.PARAMETER Main
+	Starts the main Communicator Window.
 #>
 
 PARAM(

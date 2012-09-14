@@ -11,13 +11,23 @@ PARAM(
     [String]
     $Chat,
 	[String]
-	$Domain = "sherweb.com"
+	$Domain = "sherweb.com",
+	[Switch]
+	$Main
 )
+
+$CommPath = "C:\Program Files (x86)\Microsoft Lync\communicator.exe";
+
+if ($Main)
+{
+	& $CommPath
+	Exit;
+}
 
 if ($Chat)
 {
 	$user = $Chat + "@" + $Domain;
-	& "C:\Program Files (x86)\Microsoft Lync\communicator.exe" sip:$user
+	& $CommPath sip:$user
 	Exit;
 }
 

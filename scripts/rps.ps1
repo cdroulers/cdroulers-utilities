@@ -1,4 +1,6 @@
 <#    
+    .PARAMETER Basic
+    Enter a PS Session on a basic server (needs some configuration! see readme.txt for info.)
     .PARAMETER Exchange
     Import a PowerShell session from that Exchange server (CAS or Front-End)
     .PARAMETER Remove
@@ -10,6 +12,9 @@
 #>
 
 PARAM(
+    [Parameter(HelpMessage = "Server to connect to with no specific module or anything.")]
+    [String]
+    $Basic,
     [Parameter(HelpMessage = "Exchange server to import from")]
     [String]
     $Exchange,
@@ -23,6 +28,14 @@ PARAM(
     [PSCredential]
     $Credential
 )
+
+if ($Basic)
+{    
+    Write-Host "Entering PS Session for Server '$Basic'";
+    $global:BasicSession = New-PSSession $Basic -Credential $Credential;
+    Enter-PSSession $global:BasicSession;
+    Exit;
+}
 
 if ($Exchange)
 {

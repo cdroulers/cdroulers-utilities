@@ -1,15 +1,24 @@
 <#    
-    .PARAMETER Chat
-    dsafdsf
+    .PARAMETER Exchange
+    Import a PowerShell session from that Exchange server (CAS or Front-End)
+    .PARAMETER Remove
+    Remove the imported PowerShell session from an Exchange Server
+    .PARAMETER SharePoint
+    Enter a PS Session on the SharePoint server and add SharePoint snap-in.
+    .PARAMETER Credential
+    Credentials to use when connecting.
 #>
 
 PARAM(
-    [Parameter(HelpMessage = "Exchange server to connect to")]
+    [Parameter(HelpMessage = "Exchange server to import from")]
     [String]
     $Exchange,
-    [Parameter(HelpMessage = "Remove a PS session for a server")]
+    [Parameter(HelpMessage = "Remove a PS session (Exchange)")]
     [Switch]
     $Remove,
+    [Parameter(HelpMessage = "SharePoint server to connect to")]
+    [String]
+    $SharePoint,
     [Parameter(HelpMessage = "Credentials to use")]
     [PSCredential]
     $Credential
@@ -21,7 +30,7 @@ if ($Exchange)
     {
         if (!$global:ExchangeSession -or $global:ExchangeSession.State -ne "Opened")
         {
-            Write-Warning "No Exchange session to exit from.";
+            Write-Warning "No Exchange session to remove.";
             Exit;
         }
         Write-Host "Exiting '$($global:ExchangeSession.ComputerName)' Exchange connection";
@@ -40,6 +49,15 @@ if ($Exchange)
     {
         Write-Warning "You are already connected to '$($global:ExchangeSession.ComputerName)' for Exchange";
     }
+    Exit;
+}
+
+if ($SharePoint)
+{    
+    Write-Host "Entering PS Session for SharePoint server '$SharePoint'";
+    $global:SharePointSession = New-PSSession $SharePoint -Authentication Credssp -Credential $Credential;
+    Invoke-Command -Session $global:SharePointSession { Add-PSSnapin "Microsoft.SharePoint.PowerShell" }
+    Enter-PSSession $global:SharePointSession;
     Exit;
 }
 

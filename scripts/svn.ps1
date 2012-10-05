@@ -11,7 +11,7 @@
 
 PARAM(
     [Parameter(HelpMessage = "Which path to run commands on",
-		ValueFromPipeline = $True)]
+        ValueFromPipeline = $True)]
     [String]
     $Path = ".",
     [Parameter(HelpMessage = "Show the log interface (history)")]
@@ -28,19 +28,19 @@ PARAM(
 if ($Log)
 {
     & TortoiseProc.exe /command:log /path:$Path
-	Exit;
+    Exit;
 }
 
 if ($Diff)
 {
     & TortoiseProc.exe /command:diff /path:$Path
-	Exit;
+    Exit;
 }
 
 if ($Properties)
 {
     & TortoiseProc.exe /command:properties /path:$Path
-	Exit;
+    Exit;
 }
 
 Write-Warning "No command specified";

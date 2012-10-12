@@ -17,7 +17,10 @@ IfWinExist ahk_class Console_2_Main
 }
 else
 {
-	Run Console.exe
+	if FileExist("Console.exe")
+		Run Console.exe
+	else
+		Run Console.exe.lnk
 }
 DetectHiddenWindows, off
 return

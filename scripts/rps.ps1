@@ -35,7 +35,14 @@ PARAM(
 if ($Basic)
 {    
     Write-Host "Entering PS Session for Server '$Basic'";
-    $global:BasicSession = New-PSSession $Basic -Credential $Credential;
+    if ($Credential)
+    {
+        $global:BasicSession = New-PSSession $Basic -Credential $Credential;
+    }
+    else
+    {
+        $global:BasicSession = New-PSSession $Basic
+    }
     Enter-PSSession $global:BasicSession;
     Exit;
 }
@@ -58,7 +65,14 @@ if ($Exchange)
         $uri = "http://$Exchange/powershell";
         $namespace = "Microsoft.Exchange";
         Write-Host "Connecting to $uri/$namespace";
-        $global:ExchangeSession = New-PSSession -ConfigurationName $namespace -ConnectionUri $uri -Credential $Credential;
+        if ($Credential)
+        {
+            $global:ExchangeSession = New-PSSession -ConfigurationName $namespace -ConnectionUri $uri -Credential $Credential;
+        }
+        else
+        {
+            $global:ExchangeSession = New-PSSession -ConfigurationName $namespace -ConnectionUri $uri;
+        }
         Import-PSSession $global:ExchangeSession;
     }
     else
@@ -71,7 +85,14 @@ if ($Exchange)
 if ($SharePoint)
 {    
     Write-Host "Entering PS Session for SharePoint server '$SharePoint'";
-    $global:SharePointSession = New-PSSession $SharePoint -Authentication Credssp -Credential $Credential;
+    if ($Credential)
+    {
+        $global:SharePointSession = New-PSSession $SharePoint -Authentication Credssp -Credential $Credential;
+    }
+    else
+    {
+        $global:SharePointSession = New-PSSession $SharePoint -Authentication Credssp;
+    }
     Invoke-Command -Session $global:SharePointSession { Add-PSSnapin "Microsoft.SharePoint.PowerShell" }
     Enter-PSSession $global:SharePointSession;
     Exit;
@@ -95,7 +116,14 @@ if ($Lync)
         $uri = "https://$Lync/OcsPowerShell";
         Write-Host "Connecting to $uri";
         $skipOptions = New-PSSessionOption -SkipCACheck -SkipRevocationCheck -SkipCNCheck;
-        $global:LyncSession = New-PSSession -ConnectionUri $uri -Credential $Credential -SessionOption $skipOptions;
+        if ($Credential)
+        {
+            $global:LyncSession = New-PSSession -ConnectionUri $uri -Credential $Credential -SessionOption $skipOptions;
+        }
+        else
+        {
+            $global:LyncSession = New-PSSession -ConnectionUri $uri -SessionOption $skipOptions;
+        }
         Import-PSSession $global:LyncSession;
     }
     else

@@ -1,5 +1,8 @@
 rps.ps1
 
+INSTALL POWERSHELL 3!
+http://www.microsoft.com/en-us/download/details.aspx?id=34595
+
 To enable remote management of a computer, you must start the Windows Remote Management service (and put it to automatic start)
 
 View this Stack Overflow for help: http://stackoverflow.com/questions/1469791/powershell-v2-remoting-how-do-you-enable-unecrypted-traffic
@@ -12,3 +15,10 @@ On the remote server, execute the following commands as an administrator:
 On the client, run a PowerShell as the actual Administrator (maybe needs to be enable in user management).
 Everything that has to be done on the client should be run as the Administrator user!
 - Set-Item -Force WSMan:\localhost\Client\AllowUnencrypted $true
+
+
+Enabling ping via PowerShell: http://msmvps.com/blogs/richardsiddaway/archive/2009/08/30/enable-ping.aspx
+
+$fw = New-Object -ComObject HNetCfg.FWPolicy2
+$fw.Rules | where {$_.Name -like "File and Printer Sharing (Echo Request - ICMPv4-In)"} |  foreach { $_.Enabled = $true }
+$fw.Rules | where {$_.Name -like "File and Printer Sharing (Echo Request - ICMPv4-In)"} |  Format-Table Name, Direction, Protocol, Profiles, Enabled -AutoSize

@@ -15,6 +15,9 @@ PARAM(
     [Parameter(HelpMessage = "Server to connect to with no specific module or anything.")]
     [String]
     $Basic,
+    [Parameter(HelpMessage = "Server to connect to with SSL instead of basic.")]
+    [String]
+    $Ssl,
     [Parameter(HelpMessage = "Exchange server to import from")]
     [String]
     $Exchange,
@@ -44,6 +47,21 @@ if ($Basic)
         $global:BasicSession = New-PSSession $Basic
     }
     Enter-PSSession $global:BasicSession;
+    Exit;
+}
+
+if ($Ssl)
+{    
+    Write-Host "Entering SSL PS Session for Server '$Ssl'";
+    if ($Credential)
+    {
+        $global:SslSession = New-PSSession $Ssl -Credential $Credential -UseSsl -SessionOption (New-PSSessionOption -SkipCACheck -SkipCNCheck -SkipRevocationCheck);
+    }
+    else
+    {
+        $global:SslSession = New-PSSession $Ssl -UseSsl -SessionOption (New-PSSessionOption -SkipCACheck -SkipCNCheck -SkipRevocationCheck);
+    }
+    Enter-PSSession $global:SslSession;
     Exit;
 }
 

@@ -22,3 +22,10 @@ Enabling ping via PowerShell: http://msmvps.com/blogs/richardsiddaway/archive/20
 $fw = New-Object -ComObject HNetCfg.FWPolicy2
 $fw.Rules | where {$_.Name -like "File and Printer Sharing (Echo Request - ICMPv4-In)"} |  foreach { $_.Enabled = $true }
 $fw.Rules | where {$_.Name -like "File and Printer Sharing (Echo Request - ICMPv4-In)"} |  Format-Table Name, Direction, Protocol, Profiles, Enabled -AutoSize
+
+Enable getting password via the command line instead of GUI : (http://blogs.msdn.com/b/powershell/archive/2008/06/20/getting-credentials-from-the-command-line.aspx)
+$key = "HKLM:\SOFTWARE\Microsoft\PowerShell\1\ShellIds"
+Set-ItemProperty $key ConsolePrompting True
+
+List listeners : (http://blogs.msdn.com/b/wmi/archive/2009/07/22/new-default-ports-for-ws-management-and-powershell-remoting.aspx)
+winrm e winrm/config/listener

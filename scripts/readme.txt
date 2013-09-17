@@ -29,3 +29,6 @@ Set-ItemProperty $key ConsolePrompting True
 
 List listeners : (http://blogs.msdn.com/b/wmi/archive/2009/07/22/new-default-ports-for-ws-management-and-powershell-remoting.aspx)
 winrm e winrm/config/listener
+
+Add trusted host:
+winrm s winrm/config/client '@{TrustedHosts="*"}'

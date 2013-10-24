@@ -32,20 +32,29 @@ PARAM(
     $Lync,
     [Parameter(HelpMessage = "Credentials to use")]
     [PSCredential]
-    $Credential
+    $Credential,
+    [Parameter(HelpMessage = "Type of Authentication if not the default")]
+    [System.Management.Automation.Runspaces.AuthenticationMechanism]
+    $Authentication
 )
+
+$Splatted = @{
+}
+
+if ($Credential)
+{
+    $Splatted["Credential"] = $Credential;
+}
+
+if ($Authentication)
+{
+    $Splatted["Authentication"] = $Authentication;
+}
 
 if ($Basic)
 {    
     Write-Host "Entering PS Session for Server '$Basic'";
-    if ($Credential)
-    {
-        $global:BasicSession = New-PSSession $Basic -Credential $Credential;
-    }
-    else
-    {
-        $global:BasicSession = New-PSSession $Basic
-    }
+    $global:BasicSession = New-PSSession $Basic @Splatted;
     Enter-PSSession $global:BasicSession;
     Exit;
 }
@@ -53,14 +62,7 @@ if ($Basic)
 if ($Ssl)
 {    
     Write-Host "Entering SSL PS Session for Server '$Ssl'";
-    if ($Credential)
-    {
-        $global:SslSession = New-PSSession $Ssl -Credential $Credential -UseSsl -SessionOption (New-PSSessionOption -SkipCACheck -SkipCNCheck -SkipRevocationCheck);
-    }
-    else
-    {
-        $global:SslSession = New-PSSession $Ssl -UseSsl -SessionOption (New-PSSessionOption -SkipCACheck -SkipCNCheck -SkipRevocationCheck);
-    }
+    $global:SslSession = New-PSSession $Ssl -UseSsl -SessionOption (New-PSSessionOption -SkipCACheck -SkipCNCheck -SkipRevocationCheck) @Splatted;
     Enter-PSSession $global:SslSession;
     Exit;
 }
@@ -83,14 +85,7 @@ if ($Exchange)
         $uri = "http://$Exchange/powershell";
         $namespace = "Microsoft.Exchange";
         Write-Host "Connecting to $uri/$namespace";
-        if ($Credential)
-        {
-            $global:ExchangeSession = New-PSSession -ConfigurationName $namespace -ConnectionUri $uri -Credential $Credential;
-        }
-        else
-        {
-            $global:ExchangeSession = New-PSSession -ConfigurationName $namespace -ConnectionUri $uri;
-        }
+        $global:ExchangeSession = New-PSSession -ConfigurationName $namespace -ConnectionUri $uri @Splatted;
         Import-PSSession $global:ExchangeSession;
     }
     else
@@ -103,14 +98,7 @@ if ($Exchange)
 if ($SharePoint)
 {    
     Write-Host "Entering PS Session for SharePoint server '$SharePoint'";
-    if ($Credential)
-    {
-        $global:SharePointSession = New-PSSession $SharePoint -Authentication Credssp -Credential $Credential;
-    }
-    else
-    {
-        $global:SharePointSession = New-PSSession $SharePoint -Authentication Credssp;
-    }
+    $global:SharePointSession = New-PSSession $SharePoint -Authentication Credssp @Splatted;
     Invoke-Command -Session $global:SharePointSession { Add-PSSnapin "Microsoft.SharePoint.PowerShell" }
     Enter-PSSession $global:SharePointSession;
     Exit;
@@ -134,14 +122,7 @@ if ($Lync)
         $uri = "https://$Lync/OcsPowerShell";
         Write-Host "Connecting to $uri";
         $skipOptions = New-PSSessionOption -SkipCACheck -SkipRevocationCheck -SkipCNCheck;
-        if ($Credential)
-        {
-            $global:LyncSession = New-PSSession -ConnectionUri $uri -Credential $Credential -SessionOption $skipOptions;
-        }
-        else
-        {
-            $global:LyncSession = New-PSSession -ConnectionUri $uri -SessionOption $skipOptions;
-        }
+        $global:LyncSession = New-PSSession -ConnectionUri $uri -SessionOption $skipOptions @Splatted;
         Import-PSSession $global:LyncSession;
     }
     else

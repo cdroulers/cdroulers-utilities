@@ -24,7 +24,7 @@
 			<color use="0" r="0" g="0" b="0"/>
 		</font>
 		<window title="Console" icon="" use_tab_icon="1" use_console_title="0" show_cmd="0" show_cmd_tabs="0" use_tab_title="0" trim_tab_titles="20" trim_tab_titles_right="0"/>
-		<controls show_menu="0" show_toolbar="0" show_statusbar="0" show_tabs="1" hide_single_tab="0" show_scrollbars="0" tabs_on_bottom="1" flat_scrollbars="0"/>
+		<controls show_menu="0" show_toolbar="0" show_statusbar="0" show_tabs="1" hide_single_tab="0" show_scrollbars="1" tabs_on_bottom="1" flat_scrollbars="1"/>
 		<styles caption="0" resizable="0" taskbar_button="0" border="0" inside_border="5" tray_icon="1">
 			<selection_color r="255" g="255" b="255"/>
 		</styles>
@@ -91,6 +91,42 @@
 	<tabs>
 		<tab title="Default" use_default_icon="0">
 			<console shell="" init_dir="" run_as_user="0" user=""/>
+			<cursor style="0" r="255" g="255" b="255"/>
+			<background type="0" r="0" g="0" b="0">
+				<image file="" relative="0" extend="0" position="0">
+					<tint opacity="0" r="0" g="0" b="0"/>
+				</image>
+			</background>
+		</tab>
+		<tab title="homepage" use_default_icon="0">
+			<console shell="" init_dir="C:\dev\cdroulers\homepage" run_as_user="0" user=""/>
+			<cursor style="0" r="255" g="255" b="255"/>
+			<background type="0" r="0" g="0" b="0">
+				<image file="" relative="0" extend="0" position="0">
+					<tint opacity="0" r="0" g="0" b="0"/>
+				</image>
+			</background>
+		</tab>
+		<tab title="exercism" use_default_icon="0">
+			<console shell="" init_dir="C:\dev\cdroulers\exercism" run_as_user="0" user=""/>
+			<cursor style="0" r="255" g="255" b="255"/>
+			<background type="0" r="0" g="0" b="0">
+				<image file="" relative="0" extend="0" position="0">
+					<tint opacity="0" r="0" g="0" b="0"/>
+				</image>
+			</background>
+		</tab>
+		<tab title="gas2" use_default_icon="0">
+			<console shell="" init_dir="C:\dev\vooban\gas2" run_as_user="0" user=""/>
+			<cursor style="0" r="255" g="255" b="255"/>
+			<background type="0" r="0" g="0" b="0">
+				<image file="" relative="0" extend="0" position="0">
+					<tint opacity="0" r="0" g="0" b="0"/>
+				</image>
+			</background>
+		</tab>
+		<tab title="tooling" use_default_icon="0">
+			<console shell="" init_dir="C:\dev\vooban\tooling\SqlMigration" run_as_user="0" user=""/>
 			<cursor style="0" r="255" g="255" b="255"/>
 			<background type="0" r="0" g="0" b="0">
 				<image file="" relative="0" extend="0" position="0">
